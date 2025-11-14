@@ -17,12 +17,13 @@
 * 7. [Part 2: Collecting NGINX Metrics with EDOT](#Part2:CollectingNGINXMetricswithEDOT)
 	* 7.1. [Install the OTel Content Integration](#InstalltheOTelContentIntegration)
 	* 7.2. [Test the OTel Collector (Standalone)](#TesttheOTelCollectorStandalone)
-	* 7.3. [Export Your Fleet Policy Configuration](#ExportYourFleetPolicyConfiguration)
-	* 7.4. [Create the Standalone Hybrid `elastic-agent.yml`](#CreatetheStandaloneHybridelastic-agent.yml)
-	* 7.5. [Restart the Agent](#RestarttheAgent)
-	* 7.6. [Final Validation](#FinalValidation)
-* 8. [Conclusion](#Conclusion)
-* 9. [References](#References)
+* 8. [ Part 3: Bringing all together in Elastic-agent Hybrid](#Part3:BringingalltogetherinElastic-agentHybrid)
+	* 8.1. [Export Your Fleet Policy Configuration](#ExportYourFleetPolicyConfiguration)
+	* 8.2. [Create the Standalone Hybrid `elastic-agent.yml`](#CreatetheStandaloneHybridelastic-agent.yml)
+	* 8.3. [Restart the Agent](#RestarttheAgent)
+	* 8.4. [Final Validation](#FinalValidation)
+* 9. [Conclusion](#Conclusion)
+* 10. [References](#References)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -260,9 +261,11 @@ Once you've confirmed data is flowing, stop the foreground process (`Ctrl+C`).
 
 ---
 
+##  8. <a name='Part3:BringingalltogetherinElastic-agentHybrid'></a> Part 3: Bringing all together in Elastic-agent Hybrid
+
 > **Important:** When running the Elastic Agent in hybrid mode, you have to switch the managed agent to standalone. You will have to provide both the Agent configuration (which you can get from your Fleet policy) and the EDOT configuration we created earlier. This agent will **no longer be managed by Fleet**.
 
-###  7.3. <a name='ExportYourFleetPolicyConfiguration'></a>Export Your Fleet Policy Configuration
+###  8.1. <a name='ExportYourFleetPolicyConfiguration'></a>Export Your Fleet Policy Configuration
 
 First, we need the configuration for the NGINX *logs* that Fleet was managing.
 
@@ -289,7 +292,7 @@ First, we need the configuration for the NGINX *logs* that Fleet was managing.
             # ... other log settings ...
     ```
 
-###  7.4. <a name='CreatetheStandaloneHybridelastic-agent.yml'></a>Create the Standalone Hybrid `elastic-agent.yml`
+###  8.2. <a name='CreatetheStandaloneHybridelastic-agent.yml'></a>Create the Standalone Hybrid `elastic-agent.yml`
 
 Now, we will completely replace the `elastic-agent.yml` file with our new standalone config.
 
@@ -372,7 +375,7 @@ Now, we will completely replace the `elastic-agent.yml` file with our new standa
     * **env:ELASTIC_URL:** This is your Elasticsearch connection info. You can create a new API key in Kibana with agent privileges.
     * **env:ELASTIC_API_KEY:** This is your Elasticsearch API Key
 
-###  7.5. <a name='RestarttheAgent'></a>Restart the Agent
+###  8.3. <a name='RestarttheAgent'></a>Restart the Agent
 
 Save the file and restart the `elastic-agent` service to apply your new standalone configuration.
 
@@ -380,7 +383,7 @@ Save the file and restart the `elastic-agent` service to apply your new standalo
 sudo systemctl restart elastic-agent
 ```
 
-###  7.6. <a name='FinalValidation'></a>Final Validation
+###  8.4. <a name='FinalValidation'></a>Final Validation
 
 You've done it! The single `elastic-agent` service is now running in standalone hybrid mode.
 
@@ -392,7 +395,7 @@ In Fleet, this agent will now show as "Offline" or "Unenrolled," which is expect
 
 ---
 
-##  8. <a name='Conclusion'></a>Conclusion
+##  9. <a name='Conclusion'></a>Conclusion
 
 You now have a single Elastic Agent efficiently collecting NGINX logs via a standalone `inputs` configuration and NGINX metrics via a local `otel:` configuration.
 
@@ -401,7 +404,7 @@ This standalone hybrid pattern is incredibly powerful. You can use it to:
 * Combine standard Elastic integrations with custom OpenTelemetry receivers, all in one configuration file.
 * Gradually migrate existing OTel workloads to Elastic.
 
-##  9. <a name='References'></a>References
+##  10. <a name='References'></a>References
  
 1. [Github Documentation](https://github.com/elastic/elastic-agent/blob/main/docs/hybrid-agent-beats-receivers.md)
 2. [EDOT Collector](https://www.elastic.co/docs/reference/edot-collector)
