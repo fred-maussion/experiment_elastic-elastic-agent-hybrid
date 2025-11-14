@@ -1,0 +1,25 @@
+receivers:
+  nginx:
+    endpoint: "http://localhost:80/status"
+    collection_interval: 10s
+
+processors:
+  resourcedetection:
+    detectors: ["system", "ec2"]
+
+exporters:
+  # Exporter to send logs and metrics to Elasticsearch
+  elasticsearch/otel:
+    endpoints: [ "{env:ELASTIC_URL}" ]
+    api_key: {env:ELASTIC_API_KEY}
+    mapping:
+      mode: otel
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    metrics:
+      receivers: [nginx]
+      processors: [resourcedetection]
+      exporters: [debug, elasticsearch/otel]
