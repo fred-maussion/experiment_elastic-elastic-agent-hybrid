@@ -1,5 +1,5 @@
 id: 671146b6-fb31-4981-b60e-12a44606d200
-revision: 26
+revision: 29
 outputs:
   default:
     type: elasticsearch
@@ -264,7 +264,7 @@ agent:
     namespace: default
   features: {}
   logging:
-    level: debug
+    level: info
 inputs:
   - id: logfile-system-06f03635-d677-497d-b3b0-d02513568e4c
     name: system-vm
@@ -570,7 +570,7 @@ exporters:
   # Exporter to send logs and metrics to Elasticsearch
   elasticsearch/otel:
     endpoints: [ "https://env:ELASTIC_URL:443" ]
-    api_key: eGkxRWVwb0J4VEJYeU9Jdzh2cVo6VFFFYWp5ZUxHZXZSWjA3Z3ZjOEdmUQ==
+    api_key: 'env:ELASTIC_API_KEY'
     mapping:
       mode: otel
   debug:
@@ -582,3 +582,32 @@ service:
       receivers: [nginx]
       processors: [resourcedetection]
       exporters: [debug, elasticsearch/otel]
+
+## Monitoring
+
+### Elastic-agent 
+agent.monitoring:
+  # enabled turns on monitoring of running processes
+  enabled: true
+  # enables log monitoring
+  logs: true
+  # enables metrics monitoring
+  metrics: true
+  # exposes /debug/pprof/ endpoints for Elastic Agent and Beats
+  # enable these endpoints if the monitoring endpoint is set to localhost
+  pprof.enabled: false
+  # specifies output to be used
+  use_output: default
+  http:
+    # exposes a /buffer endpoint that holds a history of recent metrics
+    buffer.enabled: false
+
+### EDOT
+#### configuration for the otel collector managed by elastic-agent
+agent.collector:
+  telemetry:
+    # Endpoint on which the otel collector will expose its Prometheus metrics. Default is localhost with a random port. (curl http://localhost:8181/metrics)
+    endpoint: http://127.0.0.1:8181
+  healthcheck:
+    # Endpoint on which the otel collector will expose its status. Default is localhost with a random port. (curl http://localhost:8182/health/status)
+    endpoint: http://127.0.0.1:8182

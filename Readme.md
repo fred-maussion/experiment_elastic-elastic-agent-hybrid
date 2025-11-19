@@ -20,8 +20,9 @@
 * 8. [ Part 3: Bringing all together in Elastic-agent Hybrid](#Part3:BringingalltogetherinElastic-agentHybrid)
 	* 8.1. [Export Your Fleet Policy Configuration](#ExportYourFleetPolicyConfiguration)
 	* 8.2. [Create the Standalone Hybrid `elastic-agent.yml`](#CreatetheStandaloneHybridelastic-agent.yml)
-	* 8.3. [Restart the Agent](#RestarttheAgent)
-	* 8.4. [Final Validation](#FinalValidation)
+	* 8.3. [Monitoring](#Monitoring)
+	* 8.4. [Restart the Agent](#RestarttheAgent)
+	* 8.5. [Final Validation](#FinalValidation)
 * 9. [Conclusion](#Conclusion)
 * 10. [References](#References)
 
@@ -375,7 +376,44 @@ Now, we will completely replace the `elastic-agent.yml` file with our new standa
     * **env:ELASTIC_URL:** This is your Elasticsearch connection info. You can create a new API key in Kibana with agent privileges.
     * **env:ELASTIC_API_KEY:** This is your Elasticsearch API Key
 
-###  8.3. <a name='RestarttheAgent'></a>Restart the Agent
+
+###  8.3. <a name='Monitoring'></a>Monitoring
+
+Optionally, you can configure the monitoring for both Elastic-Agent and EDOT by adding to the previously generated `elastic-agent.yml` file the following content just below the NGINX Metrics data collection from EDOT.
+
+    ```yaml
+    # 3. ADD BELOW THE 'OTEL' BLOCK FOR METRICS THE CONTENT
+    ## Monitoring
+
+    ### Elastic-agent 
+    agent.monitoring:
+      # enabled turns on monitoring of running processes
+      enabled: true
+      # enables log monitoring
+      logs: true
+      # enables metrics monitoring
+      metrics: true
+      # exposes /debug/pprof/ endpoints for Elastic Agent and Beats
+      # enable these endpoints if the monitoring endpoint is set to localhost
+      pprof.enabled: false
+      # specifies output to be used
+      use_output: default
+      http:
+        # exposes a /buffer endpoint that holds a history of recent metrics
+        buffer.enabled: false
+
+    ### EDOT
+    #### configuration for the otel collector managed by elastic-agent
+    agent.collector:
+      telemetry:
+        # Endpoint on which the otel collector will expose its Prometheus metrics. Default is localhost with a random port. (curl http://localhost:8181/metrics)
+        endpoint: http://127.0.0.1:8181
+      healthcheck:
+        # Endpoint on which the otel collector will expose its status. Default is localhost with a random port. (curl http://localhost:8182/health/status)
+        endpoint: http://127.0.0.1:8182
+    ```
+
+###  8.4. <a name='RestarttheAgent'></a>Restart the Agent
 
 Save the file and restart the `elastic-agent` service to apply your new standalone configuration.
 
@@ -383,7 +421,7 @@ Save the file and restart the `elastic-agent` service to apply your new standalo
 sudo systemctl restart elastic-agent
 ```
 
-###  8.4. <a name='FinalValidation'></a>Final Validation
+###  8.5. <a name='FinalValidation'></a>Final Validation
 
 You've done it! The single `elastic-agent` service is now running in standalone hybrid mode.
 
